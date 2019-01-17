@@ -139,6 +139,11 @@ namespace restapi.Controllers
             {
                 return NotFound();
             }
+
+            if (timecard.Status != TimecardStatus.Draft)
+            {
+                return StatusCode(409, new InvalidStateError() { });
+            }
             var Guid = new Guid(lineId);
             var oldLine = timecard.FindLineIndex(Guid);
 
@@ -160,6 +165,11 @@ namespace restapi.Controllers
             if (timecard == null)
             {
                 return NotFound();
+            }
+
+            if (timecard.Status != TimecardStatus.Draft)
+            {
+                return StatusCode(409, new InvalidStateError() { });
             }
             var Guid = new Guid(lineId);
             var oldLine = timecard.FindLineIndex(Guid);
