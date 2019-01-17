@@ -53,10 +53,13 @@ namespace restapi.Controllers
             return timecard;
         }
 
-        [HttpDelete("{id}")]
+        // Delete Card
+        //[HttpDelete("{id}")]
+        [HttpPost("{id}/delete")]
+        [Produces(ContentTypes.Transition)]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteLine(string id)
+        public IActionResult DeleteCard(string id)
         {
             Timecard timecard = Database.Find(id);
 
@@ -122,8 +125,13 @@ namespace restapi.Controllers
             }
         }
 
-        [HttpPost("{timecardId}/lines/{lineId}")]
-        public IActionResult UpdateLine(string timecardId, string lineId, [FromBody] TimecardLine timecardLine)
+        [HttpPost("{timecardId}/lines/{lineId}/replace")]
+        [Produces(ContentTypes.TimesheetLine)]
+        [ProducesResponseType(typeof(AnnotatedTimecardLine), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(InvalidStateError), 409)]
+        // replace (POST) a complete line item
+        public IActionResult Replace(string timecardId, string lineId, [FromBody] TimecardLine timecardLine)
         {
             Timecard timecard = Database.Find(timecardId);
 
@@ -131,8 +139,34 @@ namespace restapi.Controllers
             {
                 return NotFound();
             }
+            var Guid = new Guid(lineId);
+            var oldLine = timecard.FindLineIndex(Guid);
 
-            return Ok();
+            var annotatedLine = timecard.ReplaceLine(Guid, timecardLine);
+
+            return Ok(annotatedLine);
+        }
+
+        [HttpPatch("{timecardId}/lines/{lineId}/update")]
+        [Produces(ContentTypes.TimesheetLine)]
+        [ProducesResponseType(typeof(AnnotatedTimecardLine), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(InvalidStateError), 409)]
+        // replace (POST) a complete line item
+        public IActionResult Update(string timecardId, string lineId, [FromBody] TimecardLine timecardLine)
+        {
+            Timecard timecard = Database.Find(timecardId);
+
+            if (timecard == null)
+            {
+                return NotFound();
+            }
+            var Guid = new Guid(lineId);
+            var oldLine = timecard.FindLineIndex(Guid);
+
+            var annotatedLine = timecard.UpdateLine(Guid, timecardLine);
+
+            return Ok(annotatedLine);
         }
 
         [HttpGet("{id}/transitions")]

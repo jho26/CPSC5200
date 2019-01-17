@@ -80,6 +80,13 @@ namespace restapi.Models
 
                     links.Add(new ActionLink() {
                         Method = Method.Post,
+                        Type = ContentTypes.Delete,
+                        Relationship = ActionRelationship.Delete,
+                        Reference = $"/timesheets/{Identity.Value}/delete"
+                    });
+
+                     links.Add(new ActionLink() {
+                        Method = Method.Post,
                         Type = ContentTypes.TimesheetLine,
                         Relationship = ActionRelationship.RecordLine,
                         Reference = $"/timesheets/{Identity.Value}/lines"
@@ -117,6 +124,14 @@ namespace restapi.Models
 
                 case TimecardStatus.Cancelled:
                     // terminal state, nothing possible here
+
+                    links.Add(new ActionLink() {
+                        Method = Method.Post,
+                        Type = ContentTypes.Delete,
+                        Relationship = ActionRelationship.Delete,
+                        Reference = $"/timesheets/{Identity.Value}/delete"
+                    });
+                    
                     break;
             }
 
@@ -165,5 +180,54 @@ namespace restapi.Models
 
             return annotatedLine;
         }
+
+        public int FindLineIndex(Guid uniqueIdentifier)
+        {
+            //var annotatedLine = new AnnotatedTimecardLine(timecardLine);
+
+            for (int i = 0; i < Lines.Count; i++) {
+                if(Lines[i].UniqueIdentifier == uniqueIdentifier) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public AnnotatedTimecardLine ReplaceLine(Guid uniqueIdentifier, TimecardLine timecardLine)
+        {
+            var annotatedLine = new AnnotatedTimecardLine(timecardLine);
+
+            Lines.RemoveAt(FindLineIndex(uniqueIdentifier));
+
+            Lines.Add(annotatedLine);
+
+            return annotatedLine;
+        }
+
+        
+        public AnnotatedTimecardLine UpdateLine(Guid uniqueIdentifier, TimecardLine timecardLine)
+        {
+            var oldLine = Lines[FindLineIndex(uniqueIdentifier)];
+
+            if (timecardLine.Week != oldLine.Week) {
+                oldLine.Week = timecardLine.Week;
+            }
+            if (timecardLine.Year != oldLine.Year) {
+                oldLine.Year = timecardLine.Year;
+            }
+            if (timecardLine.Day != oldLine.Day) {
+                oldLine.Day = timecardLine.Day;
+            }
+            if (timecardLine.Hours != oldLine.Hours) {
+                oldLine.Hours = timecardLine.Hours;
+            }
+            if (timecardLine.Project != oldLine.Project) {
+                oldLine.Project = timecardLine.Project;
+            }
+
+            return oldLine;
+        }
+
     }
 }

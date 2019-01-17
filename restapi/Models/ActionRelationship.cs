@@ -9,6 +9,8 @@ namespace restapi.Models
         Reject,
 
         Approve,
+        
+        Delete,
 
         RecordLine
     }
