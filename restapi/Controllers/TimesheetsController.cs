@@ -262,6 +262,10 @@ namespace restapi.Controllers
 
             if (timecard != null)
             {
+                // timecard is submitted and only can be cancelled by supervisor
+                if(cancellation.Resource == timecard.Resource && timecard.Status == TimecardStatus.Submitted) {
+                    return StatusCode(409, new InvalidResourceError() { });
+                }
                 if (timecard.Status != TimecardStatus.Draft && timecard.Status != TimecardStatus.Submitted)
                 {
                     return StatusCode(409, new InvalidStateError() { });
@@ -320,6 +324,10 @@ namespace restapi.Controllers
 
             if (timecard != null)
             {
+                // rejection by supervisor
+                if(rejection.Resource == timecard.Resource) {
+                    return StatusCode(409, new InvalidResourceError() { });
+                }
                 if (timecard.Status != TimecardStatus.Submitted)
                 {
                     return StatusCode(409, new InvalidStateError() { });
@@ -378,6 +386,10 @@ namespace restapi.Controllers
 
             if (timecard != null)
             {
+                // approved by supervisor
+                if(approval.Resource == timecard.Resource) {
+                    return StatusCode(409, new InvalidResourceError() { });
+                }
                 if (timecard.Status != TimecardStatus.Submitted)
                 {
                     return StatusCode(409, new InvalidStateError() { });

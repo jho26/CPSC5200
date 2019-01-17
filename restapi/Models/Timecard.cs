@@ -73,6 +73,21 @@ namespace restapi.Models
 
                     links.Add(new ActionLink() {
                         Method = Method.Post,
+                        Type = ContentTypes.Replace,
+                        Relationship = ActionRelationship.Replace,
+                        Reference = $"/timesheets/{Identity.Value}/replace"
+                    });
+
+                    
+                    links.Add(new ActionLink() {
+                        Method = Method.Post,
+                        Type = ContentTypes.Update,
+                        Relationship = ActionRelationship.Update,
+                        Reference = $"/timesheets/{Identity.Value}/update"
+                    });
+
+                    links.Add(new ActionLink() {
+                        Method = Method.Post,
                         Type = ContentTypes.Submittal,
                         Relationship = ActionRelationship.Submit,
                         Reference = $"/timesheets/{Identity.Value}/submittal"
